@@ -17,22 +17,23 @@ Ensure you have the following installed on your system:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/aswinkaliesgit/Dataflow_architecture.git
-2. Create a Build Directory and run:
-   Navigate to dataflow_architecture and
-   Create a directory named `build` to hold the build files:
+   git clone https://github.com/aswinkaliesgit/dataflow_architecture.git
+2. How to Build:
    ```bash
+   cd dataflow_architecture
    mkdir build
    cd build
    cmake ..
    make
+3. How to Run:
+   ```bash
    ./add
-3. The output will be like this for a 8*8 matrix you can change the matrix size in the macro defined in add.cpp file
+4. The output will be like this for a 8*8 matrix
    ```bash
    *******DEVICE SPECS*******
    TOTAL PE ROWS->64
    TOTAL PE COLUMNS->64
-   SIZE PER PE->1024 BYTES
+   SIZE PER PE->256 BYTES
    Total PE's required for calculation->2 PE's
 
    2 4 6 8 10 12 14 16 
