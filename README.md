@@ -1,4 +1,4 @@
-# Dataflow_architecture
+# dataflow_architecture
 
 ## Description
 
@@ -19,7 +19,7 @@ Ensure you have the following installed on your system:
    ```bash
    git clone https://github.com/aswinkaliesgit/Dataflow_architecture.git
 2. Create a Build Directory and run:
-
+   Navigate to dataflow_architecture
    Create a directory named `build` to hold the build files:
    ```bash
    mkdir build
