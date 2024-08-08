@@ -74,7 +74,7 @@ int main()
     }
 
     std::vector<int> resource_required = calculate_resource(
-        3, MATRIX_SIZE * MATRIX_SIZE, MATRIX_SIZE * MATRIX_SIZE);
+        2, MATRIX_SIZE * MATRIX_SIZE, MATRIX_SIZE * MATRIX_SIZE);
     
     // Loading the data into the Hardware
     load_data_to_pe_arrays(a, b, pe_arrays, resource_required);
