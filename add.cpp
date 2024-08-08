@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#define MATRIX_SIZE 8
+#define MATRIX_SIZE 71
 #define ONE_BYTE 8
 
 // Function to calculate the computing units required for each input
@@ -21,7 +21,6 @@ std::vector<int> calculateResource(int total_layers, int size_a, int size_b)
     int int_result_b = static_cast<int>(result_b);
     node_vec.push_back(int_result_a);
     node_vec.push_back(2 * int_result_b);
-    node_vec.push_back(3 * int_result_a);
     return node_vec;
 }
 
@@ -105,6 +104,12 @@ int main()
     }
 
     // Printing the output
+    std::cout<<"*******DEVICE SPECS*******\n";
+    std::cout<<"TOTAL PE ROWS->"<<PE_ROWS<<"\n";
+    std::cout<<"TOTAL PE COLUMNS->"<<PE_COLUMNS<<"\n";
+    std::cout<<"SIZE PER PE->"<<SIZE_PER_PE<<" BYTES"<<"\n";
+    std::cout<<"Total PE's required for calculation->"<<(resource_required[resource_required.size()-1])<<" PE's\n\n";
+
     for (int i = 0; i < MATRIX_SIZE; ++i)
     {
         for (int j = 0; j < MATRIX_SIZE; ++j)

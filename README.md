@@ -29,6 +29,12 @@ Ensure you have the following installed on your system:
    ./add
 3. The output will be like this for a 8*8 matrix you can change the matrix size in the macro defined in add.cpp file
    ```bash
+   *******DEVICE SPECS*******
+   TOTAL PE ROWS->64
+   TOTAL PE COLUMNS->64
+   SIZE PER PE->1024 BYTES
+   Total PE's required for calculation->2 PE's
+
    2 4 6 8 10 12 14 16 
    18 20 22 24 26 28 30 32 
    34 36 38 40 42 44 46 48 
