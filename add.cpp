@@ -9,7 +9,7 @@
 #define ONE_BYTE 8
 
 // Function to calculate the computing units required for each input
-std::vector<int> calculateResource(int total_layers, int size_a, int size_b)
+std::vector<int> calculate_resource(int total_layers, int size_a, int size_b)
 {
     std::vector<int> node_vec;
 
@@ -25,7 +25,7 @@ std::vector<int> calculateResource(int total_layers, int size_a, int size_b)
 }
 
 // Helper function to load input data into processing elements
-void loadDataToPeArrays(float *a, float *b, void *pe_arrays[],
+void load_data_to_pe_arrays(float *a, float *b, void *pe_arrays[],
                         const std::vector<int> &resource_required)
 {
     for (int k = 0; k < resource_required.size(); k++)
@@ -73,11 +73,11 @@ int main()
         c[i] = 0.0f;
     }
 
-    std::vector<int> resource_required = calculateResource(
+    std::vector<int> resource_required = calculate_resource(
         3, MATRIX_SIZE * MATRIX_SIZE, MATRIX_SIZE * MATRIX_SIZE);
     
     // Loading the data into the Hardware
-    loadDataToPeArrays(a, b, pe_arrays, resource_required);
+    load_data_to_pe_arrays(a, b, pe_arrays, resource_required);
 
     // Doing computation and taking the result out from the hardware
     for (int k = 0; k < resource_required[0]; k++)
