@@ -1,4 +1,4 @@
-# Demonstration of DataFlow Architecture in a simulated Hardware
+# Demonstration of DataFlow Architecture using ADD op
 
 ## Description
 
