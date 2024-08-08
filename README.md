@@ -1,4 +1,4 @@
-# dataflow_architecture
+# Demonstration of DataFlow Architecture in a simulated Hardware
 
 ## Description
 
