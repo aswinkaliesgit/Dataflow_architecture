@@ -23,7 +23,7 @@ void load_data_to_pe_arrays(float *a, float *b, void *pe_arrays[], int resource_
     float *curr_arr_a =
         static_cast<float *>(pe_arrays[k]);
     float *curr_arr_b =
-        static_cast<float *>(pe_arrays[k + SIZE_PER_PE / 2]);
+        curr_arr_a + ((SIZE_PER_PE / 2) / sizeof(float));
     for (int i = 0; i < FLOATS_PER_PE / 2; i++)
     {
       curr_arr_a[i] = a[k * (FLOATS_PER_PE / 2) + i];
@@ -65,7 +65,7 @@ int main()
   for (int k = 0; k < resource_required; k++)
   {
     float *a_arr = static_cast<float *>(pe_arrays[k]);
-    float *b_arr = static_cast<float *>(pe_arrays[k + SIZE_PER_PE / 2]);
+    float *b_arr = a_arr + ((SIZE_PER_PE / 2) / sizeof(float));
     for (int i = 0; i < (FLOATS_PER_PE / 2); i++)
     {
       b_arr[i] = a_arr[i] + b_arr[i];
@@ -74,7 +74,8 @@ int main()
 
   for (int l = 0; l < resource_required; l++)
   {
-    float *curr_arr = static_cast<float *>(pe_arrays[l + SIZE_PER_PE / 2]);
+    float *curr_pe_addr = static_cast<float *>(pe_arrays[l]);
+    float *curr_arr = curr_pe_addr + ((SIZE_PER_PE / 2) / sizeof(float));
     for (int i = 0; i < (FLOATS_PER_PE / 2); i++)
     {
       if (((FLOATS_PER_PE / 2) * l + i) <
