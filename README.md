@@ -28,11 +28,11 @@ Ensure you have the following installed on your system:
    make
 3. How to Run:
    ```bash
-   ./add-mul
-   ./add-mul-verify
+   ./add_mul
+   ./add_mul_verify
 4. The output will be like this for a 8*8 matrix
    ```bash
-   Output while running ./add-mul
+   Output while running ./add_mul
    *******DEVICE SPECS*******
    TOTAL PE ROWS->64
    TOTAL PE COLUMNS->64
@@ -48,7 +48,7 @@ Ensure you have the following installed on your system:
    196 200 204 208 212 216 220 224 
    228 232 236 240 244 248 252 256
 
-   Output while running ./add-mul-verify
+   Output while running ./add_mul_verify
    Resultant Matrix (a + b) * c:
    4 8 12 16 20 24 28 32 
    36 40 44 48 52 56 60 64 
