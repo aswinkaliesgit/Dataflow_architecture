@@ -28,8 +28,8 @@ Ensure you have the following installed on your system:
    make
 3. How to Run:
    ```bash
-   ./mul
-   ./mul-verify
+   ./mat_mul (Executes Matrix Multiplication)
+   ./mat_mul_verify (Prints Matrix Multiplication result for verification)
 4. The output will be like this for a 3X4 matrix multiplied by 4X5 matrix
    ```bash
    Output while running ./mul
