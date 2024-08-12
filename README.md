@@ -18,7 +18,7 @@ Ensure you have the following installed on your system:
 1. Clone the repository:
    ```bash
    git clone https://github.com/aswinkaliesgit/dataflow_architecture.git
-   git checkout add-mul
+   git checkout addition_dotproduct
 2. How to Build:
    ```bash
    cd dataflow_architecture
