@@ -1,4 +1,4 @@
-# Demonstration of DataFlow Architecture using ADD-MUL op
+# Demonstration of DataFlow Architecture using ADD-DOTPRODUCT op
 
 ## Description
 
