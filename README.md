@@ -29,7 +29,7 @@ Ensure you have the following installed on your system:
    ```bash
    ./mul
    ./mul-verify
-4. The output will be like this for a 3*4 matrix multiplied by 4*5 matrix
+4. The output will be like this for a 3X4 matrix multiplied by 4X5 matrix
    ```bash
    Output while running ./mul
    *******DEVICE SPECS*******
