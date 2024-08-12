@@ -29,7 +29,7 @@ int main() {
     }
 
     // Print the result matrix
-    std::cout << "Resultant Matrix (a + b * c):" << std::endl;
+    std::cout << "Resultant Matrix (a + b) * c:" << std::endl;
     for (int i = 0; i < MATRIX_SIZE; ++i) {
         for (int j = 0; j < MATRIX_SIZE; ++j) {
             std::cout << result[i][j] << " ";
