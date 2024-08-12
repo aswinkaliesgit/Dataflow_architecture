@@ -48,7 +48,7 @@ Ensure you have the following installed on your system:
    228 232 236 240 244 248 252 256
 
    Output while running ./add-mul-verify
-   Resultant Matrix (a + b * c):
+   Resultant Matrix (a + b) * c:
    4 8 12 16 20 24 28 32 
    36 40 44 48 52 56 60 64 
    68 72 76 80 84 88 92 96 
