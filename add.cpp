@@ -11,14 +11,15 @@
 // Function to calculate the computing units required for each input
 int calculate_resource(int size)
 {
-  return static_cast<int>(std::ceil((2 * size * size) / (static_cast<float>(SIZE_PER_PE) / sizeof(float))));
+  return static_cast<int>(std::ceil((3 * size * size) / (static_cast<float>(SIZE_PER_PE) / sizeof(float))));
 }
 
 // Helper function to load input data into processing elements
-void load_data_to_pe_arrays(float *a, float *b, void *pe_arrays[], int resource_required)
+void load_data_to_pe_arrays(float *a, float *b, void *pe_arrays[], int resource_required_start, int resource_required_end)
 {
   // In this we are loading the data in such way that a part of data from matrix_a and a part of data from matrix_b will be in a single PE
-  for (int k = 0; k < resource_required; k++)
+  int t = 0;
+  for (int k = resource_required_start; k < resource_required_end; k++)
   {
     float *curr_arr_a =
         static_cast<float *>(pe_arrays[k]);
@@ -26,9 +27,10 @@ void load_data_to_pe_arrays(float *a, float *b, void *pe_arrays[], int resource_
         curr_arr_a + ((SIZE_PER_PE / 2) / sizeof(float));
     for (int i = 0; i < FLOATS_PER_PE / 2; i++)
     {
-      curr_arr_a[i] = a[k * (FLOATS_PER_PE / 2) + i];
-      curr_arr_b[i] = b[k * (FLOATS_PER_PE / 2) + i];
+      curr_arr_a[i] = a[t * (FLOATS_PER_PE / 2) + i];
+      curr_arr_b[i] = b[t * (FLOATS_PER_PE / 2) + i];
     }
+    t++;
   }
 }
 
@@ -49,20 +51,23 @@ int main()
       std::malloc(MATRIX_SIZE * MATRIX_SIZE * sizeof(float)));
   float *c = static_cast<float *>(
       std::malloc(MATRIX_SIZE * MATRIX_SIZE * sizeof(float)));
+  float *d = static_cast<float *>(
+      std::malloc(MATRIX_SIZE * MATRIX_SIZE * sizeof(float)));
   for (int i = 0; i < MATRIX_SIZE * MATRIX_SIZE; ++i)
   {
     a[i] = i + 1;
     b[i] = i + 1;
     c[i] = 0.0f;
+    d[i] = 2.0;
   }
 
   int resource_required = calculate_resource(MATRIX_SIZE);
 
   // Loading the data into the Hardware
-  load_data_to_pe_arrays(a, b, pe_arrays, resource_required);
+  load_data_to_pe_arrays(a, b, pe_arrays, 0, resource_required - 1);
 
   // Doing computation and taking the result out from the hardware matrix_a + matrix_b -> storing the result in the memory location of matrix_b
-  for (int k = 0; k < resource_required; k++)
+  for (int k = 0; k < resource_required - 1; k++)
   {
     float *a_arr = static_cast<float *>(pe_arrays[k]);
     float *b_arr = a_arr + ((SIZE_PER_PE / 2) / sizeof(float));
@@ -72,7 +77,7 @@ int main()
     }
   }
 
-  for (int l = 0; l < resource_required; l++)
+  for (int l = 0; l < resource_required - 1; l++)
   {
     float *curr_pe_addr = static_cast<float *>(pe_arrays[l]);
     float *curr_arr = curr_pe_addr + ((SIZE_PER_PE / 2) / sizeof(float));
@@ -84,6 +89,34 @@ int main()
         c[(FLOATS_PER_PE / 2) * l + i] = curr_arr[i];
       }
     }
+  }
+
+  load_data_to_pe_arrays(c, d, pe_arrays, resource_required - 2, resource_required);
+  // Doing computation and taking the result out from the hardware matrix_b*matrix_d -> storing the result in the memory location of matrix_d
+  for (int k = resource_required - 2; k < resource_required; k++)
+  {
+    float *a_arr = static_cast<float *>(pe_arrays[k]);
+    float *b_arr = a_arr + ((SIZE_PER_PE / 2) / sizeof(float));
+    for (int i = 0; i < (FLOATS_PER_PE / 2); i++)
+    {
+      b_arr[i] = a_arr[i] * b_arr[i];
+    }
+  }
+
+  int t = 0;
+  for (int l = resource_required - 2; l < resource_required; l++)
+  {
+    float *curr_pe_addr = static_cast<float *>(pe_arrays[l]);
+    float *curr_arr = curr_pe_addr + ((SIZE_PER_PE / 2) / sizeof(float));
+    for (int i = 0; i < (FLOATS_PER_PE / 2); i++)
+    {
+      if (((FLOATS_PER_PE / 2) * t + i) <
+          (MATRIX_SIZE * MATRIX_SIZE))
+      {
+        c[(FLOATS_PER_PE / 2) * t + i] = curr_arr[i];
+      }
+    }
+    t++;
   }
 
   // Printing the output
@@ -102,13 +135,9 @@ int main()
     std::cout << "\n";
   }
 
-  for (int i = 0; i < total_pe; i++)
-  {
-    std::free(pe_arrays[i]);
-  }
   std::free(a);
   std::free(b);
   std::free(c);
-
+  std::free(d);
   return 0;
 }
