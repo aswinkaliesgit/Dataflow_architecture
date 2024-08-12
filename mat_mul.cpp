@@ -12,29 +12,100 @@
 #define MATRIX_COLUMNS_2 5
 #define ONE_BYTE 8
 
-/**
- * Calculates the total number of resources required for matrix operations.
- *
- * @return The total number of resources required.
- */
+// Helper function to verify the results
+void verify_results(float *c, float *d)
+{
+    for (int i = 0; i < MATRIX_ROWS_1 * MATRIX_COLUMNS_2; ++i)
+    {
+        assert(d[i] == c[i]);
+    }
+}
+
+// Helper function to initialize input data
+void initialize_input_data(float *a, float *b, float *c, float *d)
+{
+    for (int i = 0; i < MATRIX_ROWS_1 * MATRIX_COLUMNS_1; ++i)
+    {
+        a[i] = static_cast<float>(i + 1);
+    }
+
+    for (int i = 0; i < MATRIX_ROWS_2 * MATRIX_COLUMNS_2; ++i)
+    {
+        b[i] = static_cast<float>(i + 1);
+    }
+
+    for (int i = 0; i < MATRIX_ROWS_1 * MATRIX_COLUMNS_2; ++i)
+    {
+        c[i] = 0.0f;
+    }
+
+    for (int i = 0; i < MATRIX_ROWS_1 * MATRIX_COLUMNS_2; ++i)
+    {
+        d[i] = 0.0f;
+    }
+}
+
+// Helper function to free allocated resources
+void free_resources(void *pe_arrays[], int resource_required, float *a, float *b, float *c, float *d)
+{
+    for (int i = 0; i < resource_required; i++)
+    {
+        std::free(pe_arrays[i]);
+    }
+
+    std::free(a);
+    std::free(b);
+    std::free(c);
+    std::free(d);
+}
+
+// Helper function to print resource utilization
+void print_resource_utilization(int resource_required, float *c, float *d)
+{
+    std::cout << "*******DEVICE SPECS*******\n";
+    std::cout << "TOTAL PE ROWS->" << PE_ROWS << "\n";
+    std::cout << "TOTAL PE COLUMNS->" << PE_COLUMNS << "\n";
+    std::cout << "SIZE PER PE->" << SIZE_PER_PE << " BYTES" << "\n";
+    std::cout << "Total PE's required for calculation->" << (resource_required) << " PE's\n\n";
+
+    for (int i = 0; i < PE_ROWS; i++)
+    {
+        for (int j = 0; j < PE_COLUMNS; j++)
+        {
+            if ((i * PE_ROWS + j) < resource_required)
+            {
+                std::cout << "PE " << i * PE_ROWS + j + 1 << "-> " << "(" << i << "," << j << ")" << " \n";
+            }
+        }
+    }
+
+    verify_results(c, d);
+
+    std::cout << "\n";
+    std::cout << "TEST PASSED\n";
+    std::cout << "RESULT VERIFIED SUCCESSFULLY\n";
+}
+
+// Helper function to calculate the resource required for computation
 int calculate_resource() { return MATRIX_ROWS_1 * MATRIX_COLUMNS_2; }
 
-/**
- * Loads input data from matrices a and b into processing element arrays.
- *
- * This function slices the input matrices into smaller chunks and loads them
- * into the processing element arrays. The data is loaded in a way that a part
- * of data from matrix a and a part of data from matrix b will be in a single
- * processing element.
- *
- * @param a Pointer to the first input matrix.
- * @param b Pointer to the second input matrix.
- * @param pe_arrays Array of void pointers to the processing element arrays.
- * @param resource_required The total number of resources required for the
- * matrix operation.
- *
- * @return None
- */
+// Helper function to do computation without dataflow
+void compute_results_without_dataflow(float *a, float *b, float *d)
+{
+    for (int i = 0; i < MATRIX_ROWS_1; i++)
+    {
+        for (int j = 0; j < MATRIX_COLUMNS_2; j++)
+        {
+            for (int k = 0; k < MATRIX_COLUMNS_1; k++)
+            {
+                d[i * MATRIX_COLUMNS_2 + j] +=
+                    a[i * MATRIX_COLUMNS_1 + k] * b[k * MATRIX_COLUMNS_2 + j];
+            }
+        }
+    }
+}
+
+// Helper function to load input data into processing elements
 void load_data_to_pe_arrays(float *a, float *b, void *pe_arrays[],
                             int resource_required)
 {
@@ -65,21 +136,7 @@ void load_data_to_pe_arrays(float *a, float *b, void *pe_arrays[],
     }
 }
 
-/**
- * Loads data from processing element arrays into a single output array.
- *
- * This function aggregates data from multiple processing elements into a
- * single output array. The data is loaded in a way that a row from matrix_a
- * and a column from matrix_b will be in a single processing element.
- *
- * @param c Pointer to the output array where data will be loaded.
- * @param pe_arrays Array of void pointers to the processing element arrays.
- * @param resource_required The total number of resources required for the
- * matrix operation.
- * @param pe_index The index of the processing element to load data from.
- *
- * @return None
- */
+// Helper function to load data from processing elements
 void load_data_from_pe_arrays(float *c, void *pe_arrays[], int resource_required, int pe_index)
 {
     int t = 0;
@@ -98,68 +155,10 @@ void load_data_from_pe_arrays(float *c, void *pe_arrays[], int resource_required
         t++;
     }
 }
-int main()
+
+// Helper function to perform matrix multiplication
+int pe_mat_mul(void *pe_arrays[], int resource_required, int no_of_pe_to_store_output)
 {
-    // Allocating memory to the Hardware and slicing it to make many PEs
-    const int total_pe = (PE_ROWS * PE_COLUMNS);
-
-    void *pe_arrays[total_pe];
-    for (int i = 0; i < total_pe; i++)
-    {
-        pe_arrays[i] = std::malloc(SIZE_PER_PE * ONE_BYTE);
-    }
-
-    float *a = static_cast<float *>(
-        std::malloc(MATRIX_ROWS_1 * MATRIX_COLUMNS_1 * sizeof(float)));
-    float *b = static_cast<float *>(
-        std::malloc(MATRIX_ROWS_2 * MATRIX_COLUMNS_2 * sizeof(float)));
-    float *c = static_cast<float *>(
-        std::malloc(MATRIX_ROWS_1 * MATRIX_COLUMNS_2 * sizeof(float)));
-    float *d = static_cast<float *>(
-        std::malloc(MATRIX_ROWS_1 * MATRIX_COLUMNS_2 * sizeof(float)));
-
-    for (int i = 0; i < MATRIX_ROWS_1 * MATRIX_COLUMNS_1; ++i)
-    {
-        a[i] = static_cast<float>(i + 1);
-    }
-
-    for (int i = 0; i < MATRIX_ROWS_2 * MATRIX_COLUMNS_2; ++i)
-    {
-        b[i] = static_cast<float>(i + 1);
-    }
-
-    for (int i = 0; i < MATRIX_ROWS_1 * MATRIX_COLUMNS_2; ++i)
-    {
-        c[i] = 0.0f;
-    }
-
-    for (int i = 0; i < MATRIX_ROWS_1 * MATRIX_COLUMNS_2; ++i)
-    {
-        d[i] = 0.0f;
-    }
-
-    // naive multiplication of a and b and storing the result in d
-    for (int i = 0; i < MATRIX_ROWS_1; i++)
-    {
-        for (int j = 0; j < MATRIX_COLUMNS_2; j++)
-        {
-            for (int k = 0; k < MATRIX_COLUMNS_1; k++)
-            {
-                d[i * MATRIX_COLUMNS_2 + j] +=
-                    a[i * MATRIX_COLUMNS_1 + k] * b[k * MATRIX_COLUMNS_2 + j];
-            }
-        }
-    }
-
-    int resource_required = calculate_resource();
-
-    load_data_to_pe_arrays(a, b, pe_arrays, resource_required);
-
-    int resource_to_store_output = MATRIX_ROWS_1 * MATRIX_COLUMNS_2;
-    int no_of_pe_to_store_output = static_cast<int>(
-        std::ceil(static_cast<float>(resource_to_store_output) / (SIZE_PER_PE / sizeof(float))));
-    // Computing the matrix multiplication and storing the result in the the new
-    // pe locations and copying the result to the c array
     int pe_index = 0;
     for (int i = 0; i < resource_required; i++)
     {
@@ -181,42 +180,54 @@ int main()
             result_arr[local_index] = temp;
         }
     }
+    return pe_index;
+}
+
+int main()
+{
+    // Allocating memory to the Hardware and slicing it to make many PEs
+    const int total_pe = (PE_ROWS * PE_COLUMNS);
+
+    void *pe_arrays[total_pe];
+    for (int i = 0; i < total_pe; i++)
+    {
+        pe_arrays[i] = std::malloc(SIZE_PER_PE * ONE_BYTE);
+    }
+
+    float *a = static_cast<float *>(
+        std::malloc(MATRIX_ROWS_1 * MATRIX_COLUMNS_1 * sizeof(float)));
+    float *b = static_cast<float *>(
+        std::malloc(MATRIX_ROWS_2 * MATRIX_COLUMNS_2 * sizeof(float)));
+    float *c = static_cast<float *>(
+        std::malloc(MATRIX_ROWS_1 * MATRIX_COLUMNS_2 * sizeof(float)));
+    float *d = static_cast<float *>(
+        std::malloc(MATRIX_ROWS_1 * MATRIX_COLUMNS_2 * sizeof(float)));
+
+    initialize_input_data(a, b, c, d);
+
+    // matrix multiplication without dataflow of a and b and storing the result in d
+    compute_results_without_dataflow(a, b, d);
+
+    int resource_required = calculate_resource();
+
+    load_data_to_pe_arrays(a, b, pe_arrays, resource_required);
+
+    int resource_to_store_output = MATRIX_ROWS_1 * MATRIX_COLUMNS_2;
+    int no_of_pe_to_store_output = static_cast<int>(
+        std::ceil(static_cast<float>(resource_to_store_output) / (SIZE_PER_PE / sizeof(float))));
+
+    // Computing the matrix multiplication and storing the result in the the new
+    // pe locations and copying the result to the c array
+    int pe_index = pe_mat_mul(pe_arrays, resource_required, no_of_pe_to_store_output);
 
     // function to store c the result_arr to c array
     load_data_from_pe_arrays(c, pe_arrays, resource_required, pe_index);
 
-    std::cout << "*******DEVICE SPECS*******\n";
-    std::cout << "TOTAL PE ROWS->" << PE_ROWS << "\n";
-    std::cout << "TOTAL PE COLUMNS->" << PE_COLUMNS << "\n";
-    std::cout << "SIZE PER PE->" << SIZE_PER_PE << " BYTES" << "\n";
-    std::cout << "Total PE's required for calculation->" << (resource_required) << " PE's\n\n";
+    // Printing the reources and verify results
+    print_resource_utilization(resource_required, c, d);
 
-    for (int i = 0; i < PE_ROWS; i++)
-    {
-        for (int j = 0; j < PE_COLUMNS; j++)
-        {
-            if ((i * PE_ROWS + j) < resource_required)
-            {
-                std::cout << "PE " << i * PE_ROWS + j + 1 << "-> " << "(" << i << "," << j << ")" << " \n";
-            }
-        }
-    }
-    // asserting the elements of c against d
-    for (int i = 0; i < MATRIX_ROWS_1 * MATRIX_COLUMNS_2; i++)
-    {
-        assert(c[i] == d[i]);
-    }
-    std::cout << "\n";
-    std::cout << "TEST PASSED\n";
-    std::cout << "RESULT VERIFIED SUCCESSFULLY\n";
-    for (int i = 0; i < total_pe; i++)
-    {
-        std::free(pe_arrays[i]);
-    }
+    // Free allocated resources
+    free_resources(pe_arrays, resource_required, a, b, c, d);
 
-    std::free(a);
-    std::free(b);
-    std::free(c);
-    std::free(d);
     return 0;
 }
