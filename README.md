@@ -1,8 +1,8 @@
-# Demonstration of DataFlow Architecture using MUL op
+# Demonstration of DataFlow Architecture using MAT-MUL op
 
 ## Description
 
-Perform's matrix Multiplication using custom processing elements (PEs). This project demonstrates how to allocate resources for computing units and load data into processing elements for computation.
+Perform's Matrix Multiplication using custom processing elements (PEs). This project demonstrates how to allocate resources for computing units and load data into processing elements for computation.
 
 ## Installation
 
