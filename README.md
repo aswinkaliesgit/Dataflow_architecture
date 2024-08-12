@@ -1,8 +1,8 @@
-# Demonstration of DataFlow Architecture using ADD op
+# Demonstration of DataFlow Architecture using MUL op
 
 ## Description
 
-Perform's matrix addition using custom processing elements (PEs). This project demonstrates how to allocate resources for computing units and load data into processing elements for computation.
+Perform's matrix Multiplication using custom processing elements (PEs). This project demonstrates how to allocate resources for computing units and load data into processing elements for computation.
 
 ## Installation
 
@@ -27,20 +27,23 @@ Ensure you have the following installed on your system:
    make
 3. How to Run:
    ```bash
-   ./add
-4. The output will be like this for a 8*8 matrix
+   ./mul
+   ./mul-verify
+4. The output will be like this for a 3*4 matrix multiplied by 4*5 matrix
    ```bash
+   Output while running ./mul
    *******DEVICE SPECS*******
-   TOTAL PE ROWS->64
-   TOTAL PE COLUMNS->64
-   SIZE PER PE->256 BYTES
-   Total PE's required for calculation->2 PE's
+   TOTAL PE ROWS->512
+   TOTAL PE COLUMNS->512
+   SIZE PER PE->2048 BYTES
+   Total PE's required for calculation->15 PE's
 
-   2 4 6 8 10 12 14 16 
-   18 20 22 24 26 28 30 32 
-   34 36 38 40 42 44 46 48 
-   50 52 54 56 58 60 62 64 
-   66 68 70 72 74 76 78 80 
-   82 84 86 88 90 92 94 96 
-   98 100 102 104 106 108 110 112 
-   114 116 118 120 122 124 126 128 
+   110 120 130 140 150 
+   246 272 298 324 350 
+   382 424 466 508 550 
+
+   Output while running ./mul-verify
+   Result matrix C (A * B):
+   110 120 130 140 150 
+   246 272 298 324 350 
+   382 424 466 508 550 
