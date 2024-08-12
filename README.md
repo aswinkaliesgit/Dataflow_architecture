@@ -28,23 +28,30 @@ Ensure you have the following installed on your system:
    make
 3. How to Run:
    ```bash
-   ./mat_mul (Executes Matrix Multiplication)
-   ./mat_mul_verify (Prints Matrix Multiplication result for verification)
+   ./mat_mul 
 4. The output will be like this for a 3X4 matrix multiplied by 4X5 matrix
    ```bash
-   Output while running ./mul
    *******DEVICE SPECS*******
    TOTAL PE ROWS->512
    TOTAL PE COLUMNS->512
    SIZE PER PE->2048 BYTES
    Total PE's required for calculation->15 PE's
 
-   110 120 130 140 150 
-   246 272 298 324 350 
-   382 424 466 508 550 
+   PE 0-> (0,0) 
+   PE 1-> (0,1) 
+   PE 2-> (0,2) 
+   PE 3-> (0,3) 
+   PE 4-> (0,4) 
+   PE 5-> (0,5) 
+   PE 6-> (0,6) 
+   PE 7-> (0,7) 
+   PE 8-> (0,8) 
+   PE 9-> (0,9) 
+   PE 10-> (0,10) 
+   PE 11-> (0,11) 
+   PE 12-> (0,12) 
+   PE 13-> (0,13) 
+   PE 14-> (0,14) 
 
-   Output while running ./mul-verify
-   Result matrix C (A * B):
-   110 120 130 140 150 
-   246 272 298 324 350 
-   382 424 466 508 550 
+   TEST PASSED
+   RESULT VERIFIED SUCCESSFULLY

@@ -7,6 +7,5 @@
 #define PE_ROWS 512
 #define PE_COLUMNS 512
 #define SIZE_PER_PE 2048
-#define FLOATS_PER_PE 512
 
 #endif // DEVICE_H

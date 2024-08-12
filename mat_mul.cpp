@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cassert>
 
 #define MATRIX_ROWS_1 3
 #define MATRIX_COLUMNS_1 4
@@ -64,6 +65,39 @@ void load_data_to_pe_arrays(float *a, float *b, void *pe_arrays[],
     }
 }
 
+/**
+ * Loads data from processing element arrays into a single output array.
+ *
+ * This function aggregates data from multiple processing elements into a
+ * single output array. The data is loaded in a way that a row from matrix_a
+ * and a column from matrix_b will be in a single processing element.
+ *
+ * @param c Pointer to the output array where data will be loaded.
+ * @param pe_arrays Array of void pointers to the processing element arrays.
+ * @param resource_required The total number of resources required for the
+ * matrix operation.
+ * @param pe_index The index of the processing element to load data from.
+ *
+ * @return None
+ */
+void load_data_from_pe_arrays(float *c, void *pe_arrays[], int resource_required, int pe_index)
+{
+    int t = 0;
+    // The data is loaded in a way that a row from matrix_a and a column from
+    // matrix_b will be in a single PE
+    for (int i = resource_required; i <= resource_required + pe_index; i++)
+    {
+        float *curr_arr = static_cast<float *>(pe_arrays[i]);
+        for (int j = 0; j < (SIZE_PER_PE / (sizeof(float))); j++)
+        {
+            if ((t * (SIZE_PER_PE / sizeof(float)) + j) < (MATRIX_ROWS_1 * MATRIX_COLUMNS_2))
+            {
+                c[t * (SIZE_PER_PE / sizeof(float)) + j] = curr_arr[j];
+            }
+        }
+        t++;
+    }
+}
 int main()
 {
     // Allocating memory to the Hardware and slicing it to make many PEs
@@ -81,6 +115,8 @@ int main()
         std::malloc(MATRIX_ROWS_2 * MATRIX_COLUMNS_2 * sizeof(float)));
     float *c = static_cast<float *>(
         std::malloc(MATRIX_ROWS_1 * MATRIX_COLUMNS_2 * sizeof(float)));
+    float *d = static_cast<float *>(
+        std::malloc(MATRIX_ROWS_1 * MATRIX_COLUMNS_2 * sizeof(float)));
 
     for (int i = 0; i < MATRIX_ROWS_1 * MATRIX_COLUMNS_1; ++i)
     {
@@ -97,15 +133,34 @@ int main()
         c[i] = 0.0f;
     }
 
+    for (int i = 0; i < MATRIX_ROWS_1 * MATRIX_COLUMNS_2; ++i)
+    {
+        d[i] = 0.0f;
+    }
+
+    // naive multiplication of a and b and storing the result in d
+    for (int i = 0; i < MATRIX_ROWS_1; i++)
+    {
+        for (int j = 0; j < MATRIX_COLUMNS_2; j++)
+        {
+            for (int k = 0; k < MATRIX_COLUMNS_1; k++)
+            {
+                d[i * MATRIX_COLUMNS_2 + j] +=
+                    a[i * MATRIX_COLUMNS_1 + k] * b[k * MATRIX_COLUMNS_2 + j];
+            }
+        }
+    }
+
     int resource_required = calculate_resource();
 
     load_data_to_pe_arrays(a, b, pe_arrays, resource_required);
 
     int resource_to_store_output = MATRIX_ROWS_1 * MATRIX_COLUMNS_2;
     int no_of_pe_to_store_output = static_cast<int>(
-        std::ceil(static_cast<float>(resource_to_store_output) / FLOATS_PER_PE));
+        std::ceil(static_cast<float>(resource_to_store_output) / (SIZE_PER_PE / sizeof(float))));
     // Computing the matrix multiplication and storing the result in the the new
     // pe locations and copying the result to the c array
+    int pe_index = 0;
     for (int i = 0; i < resource_required; i++)
     {
         float *curr_arr = static_cast<float *>(pe_arrays[i]);
@@ -116,10 +171,8 @@ int main()
             temp += curr_arr[j] * curr_arr[MATRIX_COLUMNS_1 + j];
         }
 
-        c[i] = temp;
-
-        int pe_index = i / FLOATS_PER_PE;
-        int local_index = i % FLOATS_PER_PE;
+        pe_index = i / (SIZE_PER_PE / sizeof(float));
+        int local_index = i % (SIZE_PER_PE / sizeof(float));
 
         if (pe_index < no_of_pe_to_store_output)
         {
@@ -129,21 +182,33 @@ int main()
         }
     }
 
+    // function to store c the result_arr to c array
+    load_data_from_pe_arrays(c, pe_arrays, resource_required, pe_index);
+
     std::cout << "*******DEVICE SPECS*******\n";
     std::cout << "TOTAL PE ROWS->" << PE_ROWS << "\n";
     std::cout << "TOTAL PE COLUMNS->" << PE_COLUMNS << "\n";
     std::cout << "SIZE PER PE->" << SIZE_PER_PE << " BYTES" << "\n";
     std::cout << "Total PE's required for calculation->" << (resource_required) << " PE's\n\n";
 
-    for (int i = 0; i < MATRIX_ROWS_1; i++)
+    for (int i = 0; i < PE_ROWS; i++)
     {
-        for (int j = 0; j < MATRIX_COLUMNS_2; j++)
+        for (int j = 0; j < PE_COLUMNS; j++)
         {
-            std::cout << c[i * MATRIX_COLUMNS_2 + j] << " ";
+            if ((i * PE_ROWS + j) < resource_required)
+            {
+                std::cout << "PE " << i * PE_ROWS + j + 1 << "-> " << "(" << i << "," << j << ")" << " \n";
+            }
         }
-        std::cout << "\n";
     }
-
+    // asserting the elements of c against d
+    for (int i = 0; i < MATRIX_ROWS_1 * MATRIX_COLUMNS_2; i++)
+    {
+        assert(c[i] == d[i]);
+    }
+    std::cout << "\n";
+    std::cout << "TEST PASSED\n";
+    std::cout << "RESULT VERIFIED SUCCESSFULLY\n";
     for (int i = 0; i < total_pe; i++)
     {
         std::free(pe_arrays[i]);
@@ -152,5 +217,6 @@ int main()
     std::free(a);
     std::free(b);
     std::free(c);
+    std::free(d);
     return 0;
 }
