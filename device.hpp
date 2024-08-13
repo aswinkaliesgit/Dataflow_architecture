@@ -1,8 +1,7 @@
 #ifndef DEVICE_H
 #define DEVICE_H
 // The device here is a grid of 64*64
-// Each PE has a size of 256 BYTES and
-// Float data that can be stored in a PE is 64  (64 * 4 = 256)
+// Each PE has a size of 256 BYTES
 
 #define PE_ROWS 64
 #define PE_COLUMNS 64
