@@ -2,7 +2,7 @@
 
 ## Description
 
-Perform's Matrix Multiplication using custom processing elements (PEs). This project demonstrates how to allocate resources for computing units and load data into processing elements for computation.
+Perform's Matrix Multiplication using threadpooling in custom processing elements (PEs). This project demonstrates how to allocate resources for computing units and load data into processing elements for computation.
 
 ## Installation
 
@@ -31,27 +31,13 @@ Ensure you have the following installed on your system:
    ./mat_mul 
 4. The output will be like this for a 3X4 matrix multiplied by 4X5 matrix
    ```bash
+   Time taken without dfa and threads: 351483 micro seconds
+   Time taken without threads: 346364 micro seconds
+   Time taken with threadpool: 341008 micro seconds
    *******DEVICE SPECS*******
    TOTAL PE ROWS->512
    TOTAL PE COLUMNS->512
    SIZE PER PE->2048 BYTES
-   Total PE's required for calculation->15 PE's
-
-   PE 0-> (0,0) 
-   PE 1-> (0,1) 
-   PE 2-> (0,2) 
-   PE 3-> (0,3) 
-   PE 4-> (0,4) 
-   PE 5-> (0,5) 
-   PE 6-> (0,6) 
-   PE 7-> (0,7) 
-   PE 8-> (0,8) 
-   PE 9-> (0,9) 
-   PE 10-> (0,10) 
-   PE 11-> (0,11) 
-   PE 12-> (0,12) 
-   PE 13-> (0,13) 
-   PE 14-> (0,14) 
-
+   Total PE's required for calculation->250000 PE's
    TEST PASSED
    RESULT VERIFIED SUCCESSFULLY
