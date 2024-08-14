@@ -1,4 +1,4 @@
-# Demonstration of DataFlow Architecture using MAT-MUL op
+# Demonstration of Threadpooling using MAT-MUL op
 
 ## Description
 
@@ -31,9 +31,9 @@ Ensure you have the following installed on your system:
    ./mat_mul 
 4. The output will be like this for a 3X4 matrix multiplied by 4X5 matrix
    ```bash
-   Time taken without dfa and threads: 351483 micro seconds
-   Time taken without threads: 346364 micro seconds
-   Time taken with threadpool: 341008 micro seconds
+   Time taken without dfa and threads: 308752 micro seconds
+   Time taken with dfa and without threads: 304726 micro seconds
+   Time taken with dfa and threadpool: 296161 micro seconds
    *******DEVICE SPECS*******
    TOTAL PE ROWS->512
    TOTAL PE COLUMNS->512
