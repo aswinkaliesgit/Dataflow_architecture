@@ -1,46 +1,68 @@
-# Demonstration of DataFlow Architecture using ADD op
+# ARM Compute Library Convolution Inference With Dataflow Architecture 
+The repo contains Independent C++ inference with ARM compute Library for Convolution layer implementation with Dataflow Architecture
 
-## Description
+## Machine Requirements:
+- Processor Architecture: ARM64
+- RAM: Minimum 8GB
+- OS: Ubuntu 20.04 
+- Storage: Minimum 64GB
 
-Perform's matrix addition using custom processing elements (PEs). This project demonstrates how to allocate resources for computing units and load data into processing elements for computation.
+# Prequisites
+* G++ (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0
+* cmake version 3.29.3
+* GNU Make 4.2.1
+* [cnpy](https://github.com/rogersce/cnpy) 
+* [ARM Compute Library](https://github.com/arM-software/ComputeLibrary/)
+* Python 3.8.10 
 
-## Installation
+# Install Prequisites
+1. Build the ARM Compute library by referring to the [documentation](https://arm-software.github.io/ComputeLibrary/latest/how_to_build.xhtml)
+2. Build the cnpy library by following the steps in [documentation](https://github.com/rogersce/cnpy?tab=readme-ov-file#installation)  
 
-### Prerequisites
+# Cloning the Repo 
+Clone the repo using the following command  
+```
+    git clone https://github.com/aswinkaliesgit/dataflow_architecture
+    cd dataflow_architecture
+    git checkout acl_convolution
+```  
+Update CMake Configuration on successful prequisite installation
+Open the CMakeLists.txt file in the root of the project directory and update the following
+* ARM_COMPUTE_DIR  - Replace the <path_to_ARM_Compute_Library_Directory> with path to ARM Compute Directory located
+* ARM_COMPUTE_LIBRARY -  Replace the <path_to_ARM_Compute_Library> with path to ARM Compute Library so located usually  /path_to_ARM_Compute_Library_Directory/build/libarm_compute.so
+* CNPY_LIBRARY     - Replace the <path_to_CNPY_Library> with the built CNPY library so file's path  
 
-Ensure you have the following installed on your system:
-- CMake (version 3.10 or higher)
-- g++ (GNU Compiler Collection)
-- Make
+# How to Run C++ Convolution Layer Inference
+1. Build the C++ Convolution Layer Inference 
+```
+    cmake -B build -S .
+    make -C build 
+``` 
+2. Run the program 
+```
+    ./build/conv_dfa_wt_pad
+```    
+# How to Run Python Convolution Layer Inference (For Verification Of C++ Output)
+1. Install Required python packages
+```
+    pip install -r requirements.txt
+```
+2. Run the python script to get convolution layer output and dump it to output file
+```
+    python conv_dfa_wt_pad.py
+```
 
-### Building the Project
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/aswinkaliesgit/dataflow_architecture.git
-2. How to Build:
-   ```bash
-   cd dataflow_architecture
-   mkdir build
-   cd build
-   cmake ..
-   make
-3. How to Run:
-   ```bash
-   ./add
-4. The output will be like this for a 8*8 matrix
-   ```bash
-   *******DEVICE SPECS*******
-   TOTAL PE ROWS->64
-   TOTAL PE COLUMNS->64
-   SIZE PER PE->256 BYTES
-   Total PE's required for calculation->2 PE's
-
-   2 4 6 8 10 12 14 16 
-   18 20 22 24 26 28 30 32 
-   34 36 38 40 42 44 46 48 
-   50 52 54 56 58 60 62 64 
-   66 68 70 72 74 76 78 80 
-   82 84 86 88 90 92 94 96 
-   98 100 102 104 106 108 110 112 
-   114 116 118 120 122 124 126 128 
+# Compare the Output 
+1. All the output files are stored in new_test/output/ folder, Comparison of files can be done using the compare.py file 
+```
+    python compare.py <file_1.npy> <file_2.npy>
+```
+Sample usage
+```
+    python compare.py new_test/output/cpp_output_wtpad_merged.npy new_test/output/py_output_wtpad_merged.npy
+```
+Sample output 
+```
+    $ python compare.py new_test/output/cpp_output_wtpad_merged.npy new_test/output/py_output_wtpad_merged.npy
+    Files are identical upto 4 decimals
+```
