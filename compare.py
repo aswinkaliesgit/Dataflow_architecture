@@ -9,30 +9,25 @@ import numpy as np
 def compare_npy_files(file1, file2):
     file1 = np.load(file1)
     file2 = np.load(file2)
-
+    # print(file1,file2)
+    print(file1.shape," == ",file2.shape)    
     if file1.shape != file2.shape:
         print(
             f"Shapes do not match: {file1} has shape {file1.shape}, {file2} has shape {file2.shape}"
         )
-        try:
-            print(
-                "Checking files after flattening ",
-                np.allclose(file1.flatten(), file2.flatten(), rtol=1e-4, atol=1e-4),
-            )
-        except Exception as e:
-            print(file1.flatten())
-            print(file2.flatten())
+        print(
+            "Checking files after flattening ",
+            np.allclose(file1.flatten(), file2.flatten(), rtol=1e-4, atol=1e-4),
+        )
     else:
         if np.allclose(file1, file2, rtol=1e-4, atol=1e-4):
             print("Files are identical upto 4 decimals")
         else:
             # Show differences
-            print(np.allclose(file1, file2, rtol=1e-4, atol=1e-4))
-            print(file1==file2)
-            print(file1,file2)
-            # find total no of elements that are not equal
-            total = np.count_nonzero(file1 != file2)
-            print('Max no of elements differ : ',total)
+            differences = np.abs(file1 - file2)
+            mean_differences = np.mean(np.abs(file1[:, None] - file2))
+            print(f"Files differ. Max difference: {np.max(differences)}")
+            print(f"Files differ. Mean difference: {mean_differences}")
 
 
 if __name__ == "__main__":

@@ -6,7 +6,9 @@
 
 #define PE_ROWS       64
 #define PE_COLUMNS    64
-#define SIZE_PER_PE   256
-#define FLOATS_PER_PE  64
+// Size is Equal to 1 MB 
+#define SIZE_PER_PE 250000
+// Size is Equal to 5 MB
+// #define SIZE_PER_PE 1250000
 
 #endif // DEVICE_H
